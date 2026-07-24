@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { candidateApi } from '../api/candidateApi';
 import { 
   Search, Eye, RefreshCw, AlertTriangle, CheckCircle, 
-  Clock, Zap, BarChart3, Activity, Users, FileText 
+  Zap, FileText, Activity, Users 
 } from 'lucide-react';
 import { formatDate, getRiskBadge, getRiskLabel } from '../utils/helpers';
 
@@ -51,7 +51,6 @@ const DashboardPage = () => {
       
       setCandidates(data);
 
-      // Hitung statistik dengan CRITICAL terpisah
       const critical = data.filter((c) => {
         const level = c.overall_risk_level || c.risk_level || '';
         return level.toUpperCase() === 'CRITICAL';
@@ -72,16 +71,13 @@ const DashboardPage = () => {
         return ['LOW', 'SAFE'].includes(level.toUpperCase());
       }).length;
 
-      // Hitung total posts dari semua kandidat
       let totalPosts = 0;
       let highRiskPosts = 0;
       data.forEach(c => {
-        // Dari summary
         if (c.summary) {
           totalPosts += c.summary.total_posts_analyzed || 0;
           highRiskPosts += c.summary.high_risk_posts_count || 0;
         }
-        // Atau dari social_media
         if (c.social_media && Array.isArray(c.social_media)) {
           c.social_media.forEach(sm => {
             if (sm.posts && Array.isArray(sm.posts)) {
@@ -113,17 +109,14 @@ const DashboardPage = () => {
     }
   };
 
-  // Helper untuk mendapatkan risk level
   const getRiskLevel = (candidate) => {
     return candidate.overall_risk_level || candidate.risk_level || 'LOW';
   };
 
-  // Helper untuk mendapatkan risk score
   const getRiskScore = (candidate) => {
     return candidate.overall_risk_score || candidate.risk_score || 0;
   };
 
-  // Helper untuk mendapatkan aggregated scores
   const getAggregatedScores = (candidate) => {
     return candidate.aggregated_scores || {
       toxicity: 0,
@@ -133,7 +126,6 @@ const DashboardPage = () => {
     };
   };
 
-  // Helper untuk mendapatkan social media
   const getSocialMedia = (candidate) => {
     if (candidate.social_media && Array.isArray(candidate.social_media)) {
       return candidate.social_media;
@@ -146,59 +138,57 @@ const DashboardPage = () => {
     return [];
   };
 
-  // Helper untuk mendapatkan nama
   const getCandidateName = (candidate) => {
     return candidate.name || candidate.full_name || candidate.username || 'Unknown';
   };
 
-  // Helper untuk mendapatkan username
   const getCandidateUsername = (candidate) => {
     return candidate.username || candidate.handle || '';
   };
 
-  const StatCard = ({ title, value, icon: Icon, color, subtitle }) => (
-    <div className="card hover:shadow-md transition-shadow">
+  const StatCard = ({ title, value, icon: Icon, color, bgColor }) => (
+    <div className={`bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow`}>
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-gray-500">{title}</p>
+          <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">{title}</p>
           <p className="text-2xl font-bold mt-1">{value}</p>
-          {subtitle && <p className="text-xs text-gray-400 mt-1">{subtitle}</p>}
         </div>
-        <div className={`p-3 rounded-lg ${color}`}>
-          <Icon className="w-5 h-5 text-white" />
+        <div className={`p-2.5 rounded-lg ${bgColor}`}>
+          <Icon className={`w-4 h-4 ${color}`} />
         </div>
       </div>
     </div>
   );
 
   return (
-    <div>
-      <div className="mb-8">
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-1">Monitor digital footprint of candidates</p>
+        <p className="text-gray-500 text-sm mt-0.5">Monitor digital footprint of candidates</p>
       </div>
 
-      {/* Stats - 7 Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-8">
-        <StatCard title="Total" value={stats.total} icon={Users} color="bg-blue-600" />
-        <StatCard title="Critical" value={stats.critical} icon={Zap} color="bg-red-700" />
-        <StatCard title="High" value={stats.high_risk} icon={AlertTriangle} color="bg-red-600" />
-        <StatCard title="Medium" value={stats.medium_risk} icon={AlertTriangle} color="bg-yellow-600" />
-        <StatCard title="Low" value={stats.low_risk} icon={CheckCircle} color="bg-green-600" />
-        <StatCard title="Total Posts" value={stats.total_posts} icon={FileText} color="bg-purple-600" />
-        <StatCard title="High Risk Posts" value={stats.high_risk_posts} icon={Activity} color="bg-orange-600" />
+      {/* Stats - 4 columns with grouping */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <StatCard title="Total" value={stats.total} icon={Users} color="text-blue-600" bgColor="bg-blue-50" />
+        <StatCard title="Critical" value={stats.critical} icon={Zap} color="text-red-700" bgColor="bg-red-50" />
+        <StatCard title="High" value={stats.high_risk} icon={AlertTriangle} color="text-red-600" bgColor="bg-red-50" />
+        <StatCard title="Medium" value={stats.medium_risk} icon={AlertTriangle} color="text-yellow-600" bgColor="bg-yellow-50" />
+        <StatCard title="Low" value={stats.low_risk} icon={CheckCircle} color="text-green-600" bgColor="bg-green-50" />
+        <StatCard title="Total Posts" value={stats.total_posts} icon={FileText} color="text-purple-600" bgColor="bg-purple-50" />
+        <StatCard title="High Risk Posts" value={stats.high_risk_posts} icon={Activity} color="text-orange-600" bgColor="bg-orange-50" />
       </div>
 
       {/* Filters */}
-      <div className="card mb-6">
-        <div className="flex flex-wrap gap-4">
-          <div className="flex-1 min-w-[200px]">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex-1 min-w-[180px]">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Search candidates..."
-                className="input-field pl-9"
+                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-shadow"
                 value={filters.search}
                 onChange={(e) => setFilters({ ...filters, search: e.target.value })}
               />
@@ -206,7 +196,7 @@ const DashboardPage = () => {
           </div>
 
           <select
-            className="input-field w-auto"
+            className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white"
             value={filters.risk_level}
             onChange={(e) => setFilters({ ...filters, risk_level: e.target.value })}
           >
@@ -218,7 +208,7 @@ const DashboardPage = () => {
           </select>
 
           <select
-            className="input-field w-auto"
+            className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white"
             value={filters.status}
             onChange={(e) => setFilters({ ...filters, status: e.target.value })}
           >
@@ -229,49 +219,52 @@ const DashboardPage = () => {
             <option value="failed">Failed</option>
           </select>
 
-          <button onClick={fetchCandidates} className="btn-primary">
-            <RefreshCw className="w-4 h-4 inline mr-2" />
+          <button 
+            onClick={fetchCandidates} 
+            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1.5"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
             Refresh
           </button>
         </div>
       </div>
 
       {/* Table */}
-      <div className="card overflow-hidden p-0">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50/80">
               <tr>
-                <th className="table-header">Candidate</th>
-                <th className="table-header">Platforms</th>
-                <th className="table-header">Risk Score</th>
-                <th className="table-header">Level</th>
-                <th className="table-header">Scores</th>
-                <th className="table-header">Posts</th>
-                <th className="table-header">Status</th>
-                <th className="table-header">Action</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Candidate</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Platforms</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Risk Score</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Level</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Scores</th>
+                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Posts</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white divide-y divide-gray-100">
               {loading ? (
                 <tr>
-                  <td colSpan="8" className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan="8" className="px-4 py-8 text-center text-gray-500">
                     <div className="flex items-center justify-center gap-2">
                       <RefreshCw className="w-4 h-4 animate-spin" />
-                      Loading...
+                      <span className="text-sm">Loading...</span>
                     </div>
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td colSpan="8" className="px-6 py-8 text-center text-red-500">
-                    <AlertTriangle className="w-5 h-5 mx-auto mb-2" />
-                    {error}
+                  <td colSpan="8" className="px-4 py-8 text-center text-red-500">
+                    <AlertTriangle className="w-5 h-5 mx-auto mb-1" />
+                    <span className="text-sm">{error}</span>
                   </td>
                 </tr>
               ) : candidates.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan="8" className="px-4 py-8 text-center text-gray-500 text-sm">
                     No candidates found
                   </td>
                 </tr>
@@ -284,28 +277,30 @@ const DashboardPage = () => {
                     socialMedia.reduce((acc, sm) => acc + (sm.posts?.length || 0), 0);
                   
                   return (
-                    <tr key={candidate.id || candidate._id} className="hover:bg-gray-50 transition-colors">
-                      <td className="table-cell">
-                        <div className="font-medium text-gray-900">{getCandidateName(candidate)}</div>
-                        <div className="text-sm text-gray-500">@{getCandidateUsername(candidate)}</div>
+                    <tr key={candidate.id || candidate._id} className="hover:bg-gray-50/60 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="font-medium text-gray-900 text-sm">{getCandidateName(candidate)}</div>
+                        <div className="text-xs text-gray-500">@{getCandidateUsername(candidate)}</div>
                       </td>
-                      <td className="table-cell">
+                      <td className="px-4 py-3">
                         <div className="flex flex-wrap gap-1">
-                          {socialMedia.map((social, idx) => (
-                            <span 
-                              key={idx} 
-                              className="badge bg-gray-100 text-gray-800 capitalize text-xs"
-                            >
+                          {socialMedia.slice(0, 3).map((social, idx) => (
+                            <span key={idx} className="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px] capitalize">
                               {social.platform || 'unknown'}
                             </span>
                           ))}
+                          {socialMedia.length > 3 && (
+                            <span className="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px]">
+                              +{socialMedia.length - 3}
+                            </span>
+                          )}
                         </div>
                       </td>
-                      <td className="table-cell">
+                      <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 bg-gray-200 rounded-full h-2">
+                          <div className="w-14 bg-gray-200 rounded-full h-1.5">
                             <div
-                              className={`h-2 rounded-full transition-all ${
+                              className={`h-1.5 rounded-full transition-all ${
                                 getRiskScore(candidate) > 80 ? 'bg-red-700' :
                                 getRiskScore(candidate) > 70 ? 'bg-red-500' :
                                 getRiskScore(candidate) > 40 ? 'bg-yellow-500' :
@@ -314,30 +309,37 @@ const DashboardPage = () => {
                               style={{ width: `${Math.min(getRiskScore(candidate), 100)}%` }}
                             />
                           </div>
-                          <span className="text-sm font-medium">{getRiskScore(candidate)}%</span>
+                          <span className="text-xs font-medium">{getRiskScore(candidate)}%</span>
                         </div>
                       </td>
-                      <td className="table-cell">
-                        <span className={`badge ${getRiskBadge(level)}`}>
+                      <td className="px-4 py-3">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${getRiskBadge(level)}`}>
                           {getRiskLabel(level)}
                         </span>
                       </td>
-                      <td className="table-cell">
-                        <div className="flex flex-col gap-0.5 text-xs">
-                          <span className="text-gray-600">Tox: {Math.round((scores.toxicity || 0) * 100)}%</span>
-                          <span className="text-gray-600">Hate: {Math.round((scores.hate_speech || 0) * 100)}%</span>
+                      <td className="px-4 py-3">
+                        <div className="flex gap-2 text-[10px] text-gray-500">
+                          <span>T: {Math.round((scores.toxicity || 0) * 100)}%</span>
+                          <span>H: {Math.round((scores.hate_speech || 0) * 100)}%</span>
                         </div>
                       </td>
-                      <td className="table-cell text-center">
-                        <div className="text-sm font-medium">{totalPosts}</div>
+                      <td className="px-4 py-3 text-center text-sm font-medium text-gray-700">
+                        {totalPosts}
                       </td>
-                      <td className="table-cell">
-                        <span className="capitalize text-sm">{candidate.status || 'pending'}</span>
+                      <td className="px-4 py-3">
+                        <span className={`text-xs capitalize ${
+                          candidate.status === 'completed' ? 'text-green-600' :
+                          candidate.status === 'processing' ? 'text-yellow-600' :
+                          candidate.status === 'failed' ? 'text-red-600' :
+                          'text-gray-500'
+                        }`}>
+                          {candidate.status || 'pending'}
+                        </span>
                       </td>
-                      <td className="table-cell">
+                      <td className="px-4 py-3 text-center">
                         <button
                           onClick={() => navigate(`/candidate/${candidate.id || candidate._id}`)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                           title="View Details"
                         >
                           <Eye className="w-4 h-4" />
