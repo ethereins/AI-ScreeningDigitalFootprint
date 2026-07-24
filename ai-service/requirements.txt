@@ -1,0 +1,43 @@
+# Web Framework
+fastapi
+uvicorn[standard]
+
+# Database
+sqlalchemy
+pymysql
+alembic
+psycopg2-binary
+
+# Configuration & Environment
+python-dotenv
+pydantic-settings
+pydantic
+
+# API Request Handling
+python-multipart
+httpx
+
+# Authentication & Security
+passlib
+python-jose[cryptography]
+bcrypt
+email-validator
+
+# AI/ML & Image Processing
+onnxruntime
+numpy
+pillow
+
+# PDF Generation
+reportlab
+
+# bucket
+boto3
+
+# Testing framework
+pytest
+pytest-asyncio
+pytest-mock
+
+# Logging
+loguru

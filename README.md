@@ -14,17 +14,17 @@ Sistem ini menganalisis postingan publik kandidat dari berbagai platform (Facebo
 
 ### Apa yang Dianalisis?
 
-| Jenis Konten | Sumber | Metode Ekstraksi |
-|-------------|--------|------------------|
-| Teks postingan | Postingan sendiri | Langsung dari API |
-| Teks komentar | Komentar di postingan orang | Langsung dari API |
-| Teks balasan | Reply ke komentar orang | Langsung dari API |
-| Teks dari gambar | Meme, screenshot, GIF | OCR (PaddleOCR) |
-| Transkrip video | Video pendek, TikTok, Reels | Whisper Speech-to-Text |
+| Jenis Konten     | Sumber                      | Metode Ekstraksi       |
+| ---------------- | --------------------------- | ---------------------- |
+| Teks postingan   | Postingan sendiri           | Langsung dari API      |
+| Teks komentar    | Komentar di postingan orang | Langsung dari API      |
+| Teks balasan     | Reply ke komentar orang     | Langsung dari API      |
+| Teks dari gambar | Meme, screenshot, GIF       | OCR (PaddleOCR)        |
+| Transkrip video  | Video pendek, TikTok, Reels | Whisper Speech-to-Text |
 
 ### Arsitektur Sistem
-
 ```
+
                   Candidate Username
                          │
                          ▼
@@ -33,30 +33,32 @@ Sistem ini menganalisis postingan publik kandidat dari berbagai platform (Facebo
       ┌──────────────────┼──────────────────┐
       │                  │                  │
       ▼                  ▼                  ▼
-   Facebook            X/Twitter        LinkedIn
-   Instagram           Threads          TikTok
-      │
-      ▼
- OCR (gambar) + Speech-to-Text (video)
-      │
-      ▼
- Normalisasi Text
-      │
-      ▼
- ┌─────────────────────────────────────────────┐
- │              AI Analysis Engine             │
- ├─────────────────────────────────────────────┤
- │ Detoxify                                   │
- │ HateBERT                                   │
- │ XLM-RoBERTa (Multilingual)                 │
- │ Qwen 3 / GPT (Context Analysis)            │
- └─────────────────────────────────────────────┘
-      │
-      ▼
- Risk Scoring Engine
-      │
-      ▼
- HR Dashboard
+
+Facebook X/Twitter LinkedIn
+Instagram Threads TikTok
+│
+▼
+OCR (gambar) + Speech-to-Text (video)
+│
+▼
+Normalisasi Text
+│
+▼
+┌─────────────────────────────────────────────┐
+│ AI Analysis Engine │
+├─────────────────────────────────────────────┤
+│ Detoxify │
+│ HateBERT │
+│ XLM-RoBERTa (Multilingual) │
+│ Qwen 3 / GPT (Context Analysis) │
+└─────────────────────────────────────────────┘
+│
+▼
+Risk Scoring Engine
+│
+▼
+HR Dashboard
+
 ```
 
 ### Model AI yang Digunakan
@@ -87,11 +89,13 @@ Sistem ini menganalisis postingan publik kandidat dari berbagai platform (Facebo
 
 **Contoh Output:**
 ```
+
 Hate Speech: 92%
 Threat: 12%
 Harassment: 67%
 ↓
 Risk Score: 81 / 100 → HIGH
+
 ```
 
 ---
@@ -100,7 +104,7 @@ Risk Score: 81 / 100 → HIGH
 
 ### 👤 Person 1 – Backend & Data Pipeline (LARAVEL)
 
-**Bertanggung jawab atas:**  
+**Bertanggung jawab atas:**
 Pengumpulan data, penyimpanan, antrian pemrosesan, dan API untuk frontend.
 
 #### Teknologi & Komponen
@@ -117,32 +121,34 @@ Pengumpulan data, penyimpanan, antrian pemrosesan, dan API untuk frontend.
 #### Struktur Folder (Backend Laravel)
 
 ```
+
 app/
 ├── Console/
-│   └── Commands/
-│       └── CrawlCandidates.php
+│ └── Commands/
+│ └── CrawlCandidates.php
 ├── Http/
-│   └── Controllers/
-│       ├── Api/
-│       │   ├── CandidateController.php
-│       │   └── AnalysisController.php
+│ └── Controllers/
+│ ├── Api/
+│ │ ├── CandidateController.php
+│ │ └── AnalysisController.php
 ├── Jobs/
-│   └── AnalyzePostJob.php
+│ └── AnalyzePostJob.php
 ├── Models/
-│   ├── Candidate.php
-│   ├── SocialPost.php
-│   ├── AnalysisResult.php
-│   └── CrawlerLog.php
+│ ├── Candidate.php
+│ ├── SocialPost.php
+│ ├── AnalysisResult.php
+│ └── CrawlerLog.php
 └── Services/
-    ├── CrawlerService.php
-    ├── PlatformManager.php
-    ├── AIService.php
-    └── Crawlers/
-        ├── BaseCrawler.php
-        ├── InstagramCrawler.php
-        ├── TwitterCrawler.php
-        ├── FacebookCrawler.php
-        └── TikTokCrawler.php
+├── CrawlerService.php
+├── PlatformManager.php
+├── AIService.php
+└── Crawlers/
+├── BaseCrawler.php
+├── InstagramCrawler.php
+├── TwitterCrawler.php
+├── FacebookCrawler.php
+└── TikTokCrawler.php
+
 ```
 
 #### Sub-tugas Harian (Person 1)
@@ -158,7 +164,7 @@ app/
 
 ### 👤 Person 2 – AI Service & Multimodal Analysis (FASTAPI)
 
-**Bertanggung jawab atas:**  
+**Bertanggung jawab atas:**
 Semua proses analisis konten (teks, gambar, video) dan scoring.
 
 #### Teknologi & Komponen
@@ -176,24 +182,26 @@ Semua proses analisis konten (teks, gambar, video) dan scoring.
 #### Struktur Folder (AI Service)
 
 ```
+
 ai-service/
 ├── app/
-│   ├── main.py
-│   ├── models/
-│   │   ├── detoxify_model.py
-│   │   ├── hatebert_model.py
-│   │   └── xlmr_model.py
-│   ├── ocr/
-│   │   └── paddleocr_processor.py
-│   ├── stt/
-│   │   └── whisper_processor.py
-│   ├── llm/
-│   │   └── qwen_analyzer.py
-│   ├── vision/
-│   │   └── clip_detector.py
-│   └── scoring/
-│       └── risk_scorer.py
+│ ├── main.py
+│ ├── models/
+│ │ ├── detoxify_model.py
+│ │ ├── hatebert_model.py
+│ │ └── xlmr_model.py
+│ ├── ocr/
+│ │ └── paddleocr_processor.py
+│ ├── stt/
+│ │ └── whisper_processor.py
+│ ├── llm/
+│ │ └── qwen_analyzer.py
+│ ├── vision/
+│ │ └── clip_detector.py
+│ └── scoring/
+│ └── risk_scorer.py
 └── requirements.txt
+
 ```
 
 #### Sub-tugas Harian (Person 2)
@@ -209,7 +217,7 @@ ai-service/
 
 ### 👤 Person 3 – Frontend Dashboard (REACT)
 
-**Bertanggung jawab atas:**  
+**Bertanggung jawab atas:**
 Tampilan HR-friendly untuk melihat hasil screening.
 
 #### Teknologi & Komponen
@@ -225,21 +233,23 @@ Tampilan HR-friendly untuk melihat hasil screening.
 #### Struktur Folder (Frontend React)
 
 ```
+
 frontend-react/
 ├── src/
-│   ├── components/
-│   │   ├── Layout/
-│   │   ├── Candidates/
-│   │   ├── Detail/
-│   │   └── Modal/
-│   ├── pages/
-│   │   ├── Dashboard.jsx
-│   │   └── CandidateDetail.jsx
-│   ├── services/
-│   │   └── api.js
-│   └── hooks/
-│       └── useCandidates.js
+│ ├── components/
+│ │ ├── Layout/
+│ │ ├── Candidates/
+│ │ ├── Detail/
+│ │ └── Modal/
+│ ├── pages/
+│ │ ├── Dashboard.jsx
+│ │ └── CandidateDetail.jsx
+│ ├── services/
+│ │ └── api.js
+│ └── hooks/
+│ └── useCandidates.js
 └── package.json
+
 ```
 
 #### Sub-tugas Harian (Person 3)
@@ -256,38 +266,40 @@ frontend-react/
 ## 🔗 Integrasi Antar Bagian
 
 ```
+
 ┌─────────────────────────────────────────────────────────────┐
-│                     Person 3 (React)                       │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │  Dashboard HR (Daftar Kandidat + Detail + Modal)    │   │
-│  └──────────────────────┬──────────────────────────────┘   │
-│                         │ HTTP                             │
+│ Person 3 (React) │
+│ ┌─────────────────────────────────────────────────────┐ │
+│ │ Dashboard HR (Daftar Kandidat + Detail + Modal) │ │
+│ └──────────────────────┬──────────────────────────────┘ │
+│ │ HTTP │
 └─────────────────────────┼─────────────────────────────────┘
-                          ▼
+▼
 ┌─────────────────────────────────────────────────────────────┐
-│               Person 1 (Laravel API + Queue)               │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
-│  │  Crawler     │→ │  PostgreSQL  │  │  Redis Queue │    │
-│  └──────────────┘  └──────────────┘  └──────┬───────┘    │
-│                                               │            │
+│ Person 1 (Laravel API + Queue) │
+│ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ │
+│ │ Crawler │→ │ PostgreSQL │ │ Redis Queue │ │
+│ └──────────────┘ └──────────────┘ └──────┬───────┘ │
+│ │ │
 └───────────────────────────────────────────────┼────────────┘
-                                                │ HTTP
-                                                ▼
+│ HTTP
+▼
 ┌─────────────────────────────────────────────────────────────┐
-│              Person 2 (FastAPI AI Service)                 │
-│  ┌──────────┐ ┌──────────┐ ┌─────────┐ ┌─────────────┐  │
-│  │Detoxify  │ │HateBERT  │ │XLM-RoBERTa│ │ Qwen 3/GPT │  │
-│  └──────────┘ └──────────┘ └─────────┘ └──────┬──────┘  │
-│  ┌──────────┐ ┌──────────┐ ┌────────────────┐          │
-│  │PaddleOCR │ │ Whisper  │ │ CLIP/SigLIP    │          │
-│  └──────────┘ └──────────┘ └────────────────┘          │
-│       │                                                │
-│       ▼                                                │
-│  ┌──────────────────────────────────────────────────┐  │
-│  │         Risk Scoring Engine                      │  │
-│  └──────────────────────────────────────────────────┘  │
+│ Person 2 (FastAPI AI Service) │
+│ ┌──────────┐ ┌──────────┐ ┌─────────┐ ┌─────────────┐ │
+│ │Detoxify │ │HateBERT │ │XLM-RoBERTa│ │ Qwen 3/GPT │ │
+│ └──────────┘ └──────────┘ └─────────┘ └──────┬──────┘ │
+│ ┌──────────┐ ┌──────────┐ ┌────────────────┐ │
+│ │PaddleOCR │ │ Whisper │ │ CLIP/SigLIP │ │
+│ └──────────┘ └──────────┘ └────────────────┘ │
+│ │ │
+│ ▼ │
+│ ┌──────────────────────────────────────────────────┐ │
+│ │ Risk Scoring Engine │ │
+│ └──────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────┘
-```
+
+````
 
 ---
 
@@ -329,7 +341,7 @@ php artisan queue:work
 
 # Jalankan server
 php artisan serve
-```
+````
 
 ### 2. AI Service FastAPI (Person 2)
 
@@ -365,21 +377,21 @@ npm run dev
 
 ### Candidate Endpoints
 
-| Method | Endpoint | Deskripsi |
-|--------|----------|-----------|
-| GET | `/api/candidates` | Daftar semua kandidat |
-| POST | `/api/candidates` | Tambah kandidat baru |
-| GET | `/api/candidates/{id}` | Detail kandidat |
-| POST | `/api/candidates/{id}/crawl` | Crawl postingan kandidat |
-| POST | `/api/candidates/crawl-all` | Crawl semua kandidat |
+| Method | Endpoint                     | Deskripsi                |
+| ------ | ---------------------------- | ------------------------ |
+| GET    | `/api/candidates`            | Daftar semua kandidat    |
+| POST   | `/api/candidates`            | Tambah kandidat baru     |
+| GET    | `/api/candidates/{id}`       | Detail kandidat          |
+| POST   | `/api/candidates/{id}/crawl` | Crawl postingan kandidat |
+| POST   | `/api/candidates/crawl-all`  | Crawl semua kandidat     |
 
 ### Analysis Endpoints
 
-| Method | Endpoint | Deskripsi |
-|--------|----------|-----------|
-| GET | `/api/analysis/summary/{candidateId}` | Ringkasan risiko |
-| GET | `/api/analysis/high-risk/{candidateId}` | Postingan berisiko tinggi |
-| GET | `/api/analysis/trends` | Tren risiko harian |
+| Method | Endpoint                                | Deskripsi                 |
+| ------ | --------------------------------------- | ------------------------- |
+| GET    | `/api/analysis/summary/{candidateId}`   | Ringkasan risiko          |
+| GET    | `/api/analysis/high-risk/{candidateId}` | Postingan berisiko tinggi |
+| GET    | `/api/analysis/trends`                  | Tren risiko harian        |
 
 ### Contoh Response
 
@@ -419,6 +431,7 @@ npm run dev
 ## 🛠️ Environment Variables
 
 ### Laravel (.env)
+
 ```env
 APP_NAME="AI Recruitment Risk Analyzer"
 APP_ENV=local
@@ -449,6 +462,7 @@ RAPIDAPI_KEY=your_token
 ```
 
 ### FastAPI (.env)
+
 ```env
 OPENAI_API_KEY=sk-xxx  # jika pakai OpenAI
 QWEN_MODEL_PATH=/path/to/qwen-14b  # jika lokal
@@ -459,6 +473,7 @@ QWEN_MODEL_PATH=/path/to/qwen-14b  # jika lokal
 ## 🔧 Perintah Berguna
 
 ### Backend Laravel
+
 ```bash
 # Migrasi database
 php artisan migrate:fresh --seed
@@ -480,6 +495,7 @@ php artisan optimize:clear
 ```
 
 ### AI Service
+
 ```bash
 # Jalankan FastAPI
 uvicorn app.main:app --reload --port 8000
@@ -489,6 +505,7 @@ curl http://localhost:8000/health
 ```
 
 ### Frontend
+
 ```bash
 # Jalankan development
 npm run dev
@@ -502,6 +519,7 @@ npm run build
 ## ✅ Kriteria Kelulusan (Done Checklist)
 
 ### Person 1 (Backend)
+
 - [ ] Laravel + PostgreSQL + Redis berjalan
 - [ ] Migration & seeder selesai
 - [ ] Crawler 4 platform berfungsi (Instagram, Twitter, Facebook, TikTok)
@@ -510,6 +528,7 @@ npm run build
 - [ ] Integrasi dengan FastAPI berhasil
 
 ### Person 2 (AI Service)
+
 - [ ] FastAPI berjalan di port 8000
 - [ ] Detoxify, HateBERT, XLM-RoBERTa terload
 - [ ] PaddleOCR dan Whisper berfungsi
@@ -518,6 +537,7 @@ npm run build
 - [ ] API documentation (Swagger/OpenAPI)
 
 ### Person 3 (Frontend)
+
 - [ ] React + Vite + Tailwind berjalan
 - [ ] Halaman daftar kandidat dengan TanStack Table
 - [ ] Filter & sorting berfungsi
@@ -526,6 +546,7 @@ npm run build
 - [ ] Integrasi API Laravel berhasil
 
 ### Integrasi (Semua)
+
 - [ ] React → Laravel → FastAPI → balik ke React
 - [ ] Data mengalir dengan benar
 - [ ] Demo lokal berjalan di masing-masing laptop
@@ -534,41 +555,93 @@ npm run build
 
 ## 📞 Koordinasi Tim
 
-| Aspek | Detail |
-|-------|--------|
+| Aspek              | Detail                                                |
+| ------------------ | ----------------------------------------------------- |
 | **Daily Check-in** | Setiap pagi jam 09.00 (15 menit) via Discord/WhatsApp |
-| **Repo** | Satu repository dengan 3 folder |
-| **API Contract** | Tentukan format JSON antar service di hari pertama |
-| **Issue Tracking** | Gunakan Trello / GitHub Projects |
+| **Repo**           | Satu repository dengan 3 folder                       |
+| **API Contract**   | Tentukan format JSON antar service di hari pertama    |
+| **Issue Tracking** | Gunakan Trello / GitHub Projects                      |
 
 ### API Contract (Wajib Disepakati)
 
 **Laravel → FastAPI**
+
 ```json
-POST /analyze-post
+POST /api/analyze-persona
 {
-  "text": "string (optional)",
-  "image_url": "string (optional)",
-  "video_url": "string (optional)",
-  "platform": "string"
+
+    "name": "string (required)",
+    "social_media": [
+      {
+        "platform": "string (required)",
+        "username": "string (required)",
+        "email": "string (nullable)",
+        "post_count": "integer (optional, default: 0)",
+        "profile_url": "string (optional, nullable)",
+        "avatar_url": "string (optional, nullable)",
+        "created_at": "string (required, ISO 8601 date-time)",
+        "updated_at": "string (required, ISO 8601 date-time)",
+        "posts": [
+          {
+            "text": "string (optional, nullable)",
+            "image_url": "string (optional, nullable)",
+            "video_url": "string (optional, nullable)",
+          }
+        ]
+      }
+    ]
+
 }
 ```
 
 **FastAPI → Laravel**
+
 ```json
 {
-  "risk_score": 81,
-  "risk_level": "HIGH",
-  "scores": {
-    "toxicity": 0.91,
-    "threat": 0.12,
-    "insult": 0.67,
-    "hate_speech": 0.92
+  "name": "string (required)",
+  "overall_risk_score": "integer (0-100, required)",
+  "overall_risk_level": "string (required, enum: LOW | MEDIUM | HIGH | CRITICAL)",
+  "aggregated_scores": {
+    "toxicity": "float (0-1, required)",
+    "threat": "float (0-1, required)",
+    "insult": "float (0-1, required)",
+    "hate_speech": "float (0-1, required)"
   },
-  "context": {
-    "category": "offensive_joke",
-    "explanation": "Konteks menunjukkan ini adalah candaan antar teman"
-  }
+  "summary": {
+    "total_posts_analyzed": "integer (required)",
+    "high_risk_posts_count": "integer (required)"
+  },
+  "social_media": [
+    {
+      "platform": "string (required)",
+      "username": "string (required)",
+      "platform_risk_score": "integer (0-100, required)",
+      "platform_risk_level": "string (required, enum: LOW | MEDIUM | HIGH | CRITICAL)",
+      "posts": [
+        {
+          "post_content": {
+            "text": "string or null (optional)",
+            "image_url": "string or null (optional)",
+            "video_url": "string or null (optional)"
+          },
+          "analysis": {
+            "risk_score": "integer (0-100, required)",
+            "risk_level": "string (required, enum: LOW | MEDIUM | HIGH | CRITICAL)",
+            "scores": {
+              "toxicity": "float (0-1, required)",
+              "threat": "float (0-1, required)",
+              "insult": "float (0-1, required)",
+              "hate_speech": "float (0-1, required)"
+            },
+            "context": {
+              "category": "string (required)",
+              "explanation": "string (required)"
+            }
+          }
+        }
+      ]
+    }
+  ]
 }
 ```
 
@@ -593,6 +666,8 @@ POST /analyze-post
 - **Fair Recruitment** - Hanya sebagai alat bantu, bukan keputusan mutlak
 - **Compliance** - Sesuai UU ITE dan UU Perlindungan Data Pribadi
 
+_Dibuat untuk tim 3 orang - AI Recruitment Risk Analyzer v1.0_
 
-*Dibuat untuk tim 3 orang - AI Recruitment Risk Analyzer v1.0*
+```
+
 ```
