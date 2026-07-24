@@ -593,11 +593,6 @@ POST /analyze-post
 - **Fair Recruitment** - Hanya sebagai alat bantu, bukan keputusan mutlak
 - **Compliance** - Sesuai UU ITE dan UU Perlindungan Data Pribadi
 
----
-
-**Selamat bekerja! 🚀 Target: Minggu malam semua sudah terintegrasi dan siap demo.**
-
----
 
 *Dibuat untuk tim 3 orang - AI Recruitment Risk Analyzer v1.0*
 ```

@@ -31,4 +31,29 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'ai_service' => [
+        'url' => env('AI_SERVICE_URL', 'http://localhost:8000'),
+        'timeout' => env('AI_SERVICE_TIMEOUT', 120),
+    ],
+
+    'scraper' => [
+        'api_url' => env('SCRAPER_API_URL', 'https://api.scrapingbee.com/v1'),
+        'api_key' => env('SCRAPER_API_KEY'),
+    ],
+
+    'twitter' => [
+        'bearer_token' => env('TWITTER_BEARER_TOKEN'),
+    ],
+
+    'instagram' => [
+        'access_token' => env('INSTAGRAM_ACCESS_TOKEN'),
+    ],
+
+    'facebook' => [
+        'access_token' => env('FACEBOOK_ACCESS_TOKEN'),
+    ],
+
+    'rapidapi' => [
+        'key' => env('RAPIDAPI_KEY'),
+    ],
 ];
