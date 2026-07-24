@@ -26,19 +26,87 @@ const DashboardPage = () => {
       if (filters.status !== 'all') params.status = filters.status;
 
       const response = await candidateApi.getAll(params);
-      const data = response.data.data || [];
+      
+      // Handle response dengan format data baru
+      let data = [];
+      if (response.data && Array.isArray(response.data)) {
+        // Format: langsung array
+        data = response.data;
+      } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+        // Format: { data: [...] }
+        data = response.data.data;
+      } else if (response.data && response.data.candidates && Array.isArray(response.data.candidates)) {
+        // Format: { candidates: [...] }
+        data = response.data.candidates;
+      } else {
+        // Fallback: coba apapun yang bisa dijadikan array
+        data = Object.values(response.data).find(val => Array.isArray(val)) || [];
+      }
+      
       setCandidates(data);
 
-      const high = data.filter((c) => ['HIGH', 'CRITICAL'].includes(c.risk_level)).length;
-      const medium = data.filter((c) => c.risk_level === 'MEDIUM').length;
-      const low = data.filter((c) => ['LOW', 'SAFE'].includes(c.risk_level)).length;
+      // Hitung statistik berdasarkan struktur data baru
+      const high = data.filter((c) => {
+        const level = c.overall_risk_level || c.risk_level || '';
+        return ['HIGH', 'CRITICAL'].includes(level.toUpperCase());
+      }).length;
+      
+      const medium = data.filter((c) => {
+        const level = c.overall_risk_level || c.risk_level || '';
+        return level.toUpperCase() === 'MEDIUM';
+      }).length;
+      
+      const low = data.filter((c) => {
+        const level = c.overall_risk_level || c.risk_level || '';
+        return ['LOW', 'SAFE'].includes(level.toUpperCase());
+      }).length;
 
-      setStats({ total: data.length, high_risk: high, medium_risk: medium, low_risk: low });
+      setStats({ 
+        total: data.length, 
+        high_risk: high, 
+        medium_risk: medium, 
+        low_risk: low 
+      });
     } catch (err) {
       setError(err.message || 'Error fetching candidates');
+      console.error('Fetch error:', err);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper untuk mendapatkan risk level dari berbagai format
+  const getRiskLevel = (candidate) => {
+    return candidate.overall_risk_level || candidate.risk_level || 'LOW';
+  };
+
+  // Helper untuk mendapatkan risk score
+  const getRiskScore = (candidate) => {
+    return candidate.overall_risk_score || candidate.risk_score || 0;
+  };
+
+  // Helper untuk mendapatkan social media
+  const getSocialMedia = (candidate) => {
+    // Coba beberapa format
+    if (candidate.social_media && Array.isArray(candidate.social_media)) {
+      return candidate.social_media;
+    }
+    if (candidate.social_links && typeof candidate.social_links === 'object') {
+      return Object.entries(candidate.social_links)
+        .filter(([_, value]) => value)
+        .map(([platform, username]) => ({ platform, username }));
+    }
+    return [];
+  };
+
+  // Helper untuk mendapatkan nama
+  const getCandidateName = (candidate) => {
+    return candidate.name || candidate.full_name || candidate.username || 'Unknown';
+  };
+
+  // Helper untuk mendapatkan username
+  const getCandidateUsername = (candidate) => {
+    return candidate.username || candidate.handle || '';
   };
 
   const StatCard = ({ title, value, icon: Icon, color }) => (
@@ -135,12 +203,16 @@ const DashboardPage = () => {
               {loading ? (
                 <tr>
                   <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
-                    Loading...
+                    <div className="flex items-center justify-center gap-2">
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      Loading...
+                    </div>
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
                   <td colSpan="7" className="px-6 py-8 text-center text-red-500">
+                    <AlertTriangle className="w-5 h-5 mx-auto mb-2" />
                     {error}
                   </td>
                 </tr>
@@ -152,22 +224,21 @@ const DashboardPage = () => {
                 </tr>
               ) : (
                 candidates.map((candidate) => (
-                  <tr key={candidate.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={candidate.id || candidate._id} className="hover:bg-gray-50 transition-colors">
                     <td className="table-cell">
-                      <div className="font-medium text-gray-900">{candidate.name}</div>
-                      <div className="text-sm text-gray-500">@{candidate.username}</div>
+                      <div className="font-medium text-gray-900">{getCandidateName(candidate)}</div>
+                      <div className="text-sm text-gray-500">@{getCandidateUsername(candidate)}</div>
                     </td>
                     <td className="table-cell">
                       <div className="flex flex-wrap gap-1">
-                        {candidate.social_links &&
-                          Object.entries(candidate.social_links).map(
-                            ([platform, username]) =>
-                              username && (
-                                <span key={platform} className="badge bg-gray-100 text-gray-800 capitalize">
-                                  {platform}
-                                </span>
-                              )
-                          )}
+                        {getSocialMedia(candidate).map((social, idx) => (
+                          <span 
+                            key={idx} 
+                            className="badge bg-gray-100 text-gray-800 capitalize"
+                          >
+                            {social.platform || 'unknown'}
+                          </span>
+                        ))}
                       </div>
                     </td>
                     <td className="table-cell">
@@ -175,31 +246,34 @@ const DashboardPage = () => {
                         <div className="w-20 bg-gray-200 rounded-full h-2">
                           <div
                             className={`h-2 rounded-full transition-all ${
-                              candidate.overall_risk_score > 70
+                              getRiskScore(candidate) > 70
                                 ? 'bg-red-500'
-                                : candidate.overall_risk_score > 40
+                                : getRiskScore(candidate) > 40
                                 ? 'bg-yellow-500'
                                 : 'bg-green-500'
                             }`}
-                            style={{ width: `${candidate.overall_risk_score || 0}%` }}
+                            style={{ width: `${getRiskScore(candidate) || 0}%` }}
                           />
                         </div>
-                        <span className="text-sm font-medium">{candidate.overall_risk_score || 0}%</span>
+                        <span className="text-sm font-medium">{getRiskScore(candidate) || 0}%</span>
                       </div>
                     </td>
                     <td className="table-cell">
-                      <span className={`badge ${getRiskBadge(candidate.risk_level)}`}>
-                        {getRiskLabel(candidate.risk_level)}
+                      <span className={`badge ${getRiskBadge(getRiskLevel(candidate))}`}>
+                        {getRiskLabel(getRiskLevel(candidate))}
                       </span>
                     </td>
                     <td className="table-cell">
-                      <span className="capitalize">{candidate.status}</span>
+                      <span className="capitalize">{candidate.status || 'pending'}</span>
                     </td>
-                    <td className="table-cell text-gray-500">{formatDate(candidate.last_scanned_at)}</td>
+                    <td className="table-cell text-gray-500">
+                      {formatDate(candidate.last_scanned_at || candidate.updated_at)}
+                    </td>
                     <td className="table-cell">
                       <button
-                        onClick={() => navigate(`/candidate/${candidate.id}`)}
+                        onClick={() => navigate(`/candidate/${candidate.id || candidate._id}`)}
                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="View Details"
                       >
                         <Eye className="w-4 h-4" />
                       </button>
