@@ -9,7 +9,7 @@ use Illuminate\Console\Command;
 class CrawlCandidates extends Command
 {
     protected $signature = 'crawl:candidates
-                            {--platform= : Platform to crawl (instagram, twitter, facebook, tiktok)}
+                            {--platform= : Platform to crawl (instagram, x, tiktok)}
                             {--limit=50 : Number of posts to fetch}
                             {--all : Crawl all candidates}';
 

@@ -10,7 +10,7 @@
 
 ## 📋 Ringkasan Proyek
 
-Sistem ini menganalisis postingan publik kandidat dari berbagai platform (Facebook, Instagram, X/Twitter, LinkedIn, TikTok, Threads) menggunakan arsitektur AI berlapis.
+Sistem ini menganalisis postingan publik kandidat dari platform Instagram, X/Twitter, dan TikTok menggunakan arsitektur AI berlapis.
 
 ### Apa yang Dianalisis?
 
@@ -33,8 +33,7 @@ Sistem ini menganalisis postingan publik kandidat dari berbagai platform (Facebo
       ┌──────────────────┼──────────────────┐
       │                  │                  │
       ▼                  ▼                  ▼
-   Facebook            X/Twitter        LinkedIn
-   Instagram           Threads          TikTok
+   Instagram           X/Twitter        TikTok
       │
       ▼
  OCR (gambar) + Speech-to-Text (video)

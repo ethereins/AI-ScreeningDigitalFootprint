@@ -31,29 +31,27 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
-    'ai_service' => [
-        'url' => env('AI_SERVICE_URL', 'http://localhost:8000'),
-        'timeout' => env('AI_SERVICE_TIMEOUT', 120),
-    ],
 
-    'scraper' => [
-        'api_url' => env('SCRAPER_API_URL', 'https://api.scrapingbee.com/v1'),
-        'api_key' => env('SCRAPER_API_KEY'),
-    ],
+    'brightdata' => [
+        'api_key' => env('BRIGHTDATA_API_KEY'),
+        'api_url' => 'https://api.brightdata.com/datasets/v3',
 
-    'twitter' => [
-        'bearer_token' => env('TWITTER_BEARER_TOKEN'),
-    ],
+        'datasets' => [
+            // ========== INSTAGRAM ==========
+            'instagram' => env('BRIGHTDATA_DATASET_INSTAGRAM_POSTS', env('BRIGHTDATA_DATASET_INSTAGRAM')),
+            'instagram_posts' => env('BRIGHTDATA_DATASET_INSTAGRAM_POSTS', env('BRIGHTDATA_DATASET_INSTAGRAM')),
+            'instagram_profiles' => env('BRIGHTDATA_DATASET_INSTAGRAM', env('BRIGHTDATA_DATASET_INSTAGRAM_POSTS')),
+            'instagram_reels' => env('BRIGHTDATA_DATASET_INSTAGRAM_REELS'),
+            'instagram_comments' => env('BRIGHTDATA_DATASET_INSTAGRAM_COMMENTS'),
 
-    'instagram' => [
-        'access_token' => env('INSTAGRAM_ACCESS_TOKEN'),
-    ],
+            // ========== TWITTER ==========
+            'twitter' => env('BRIGHTDATA_DATASET_TWITTER'),
+            'twitter_posts' => env('BRIGHTDATA_DATASET_TWITTER_POSTS'),
 
-    'facebook' => [
-        'access_token' => env('FACEBOOK_ACCESS_TOKEN'),
-    ],
-
-    'rapidapi' => [
-        'key' => env('RAPIDAPI_KEY'),
+            // ========== TIKTOK ==========
+            'tiktok' => env('BRIGHTDATA_DATASET_TIKTOK'),
+            'tiktok_posts' => env('BRIGHTDATA_DATASET_TIKTOK_POSTS'),
+            'tiktok_comments' => env('BRIGHTDATA_DATASET_TIKTOK_COMMENTS'),
+        ],
     ],
 ];

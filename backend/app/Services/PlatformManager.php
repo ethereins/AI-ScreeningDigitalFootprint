@@ -4,29 +4,25 @@ namespace App\Services;
 
 use App\Services\Crawlers\InstagramCrawler;
 use App\Services\Crawlers\TwitterCrawler;
-use App\Services\Crawlers\FacebookCrawler;
 use App\Services\Crawlers\TikTokCrawler;
-use App\Services\Crawlers\LinkedinCrawler;
-use App\Services\Crawlers\ThreadsCrawler;
 
 class PlatformManager
 {
     protected $platforms = [
         'instagram' => InstagramCrawler::class,
-        'twitter' => TwitterCrawler::class,
-        'facebook' => FacebookCrawler::class,
+        'x' => TwitterCrawler::class,
         'tiktok' => TikTokCrawler::class,
-        'linkedin' => LinkedinCrawler::class,
-        'threads' => ThreadsCrawler::class,
     ];
 
     public function getCrawler($platform)
     {
-        if (!isset($this->platforms[$platform])) {
+        $normalizedPlatform = $this->normalizePlatform($platform);
+
+        if (!isset($this->platforms[$normalizedPlatform])) {
             throw new \Exception("Platform {$platform} not supported");
         }
 
-        return app($this->platforms[$platform]);
+        return app($this->platforms[$normalizedPlatform]);
     }
 
     public function getSupportedPlatforms(): array
@@ -36,6 +32,16 @@ class PlatformManager
 
     public function validatePlatform($platform): bool
     {
-        return in_array($platform, $this->getSupportedPlatforms());
+        return in_array($this->normalizePlatform($platform), $this->getSupportedPlatforms());
+    }
+
+    protected function normalizePlatform($platform): string
+    {
+        $value = strtolower(trim((string) $platform));
+
+        return match ($value) {
+            'twitter' => 'x',
+            default => $value,
+        };
     }
 }

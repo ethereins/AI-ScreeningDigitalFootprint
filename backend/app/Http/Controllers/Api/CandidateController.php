@@ -102,7 +102,7 @@ class CandidateController extends Controller
             'username' => 'required|string|unique:candidates',
             'full_name' => 'nullable|string',
             'email' => 'nullable|email',
-            'platform' => 'required|in:twitter,facebook,instagram,tiktok,linkedin,threads',
+            'platform' => 'required|in:instagram,x,twitter,tiktok',
             'profile_url' => 'nullable|url',
             'avatar_url' => 'nullable|url'
         ]);
