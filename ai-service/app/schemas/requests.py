@@ -1,10 +1,12 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, HttpUrl
 
 
 class PostRequest(BaseModel):
+    """Request schema for /analyze-persona endpoint"""
+
     url: str = Field(min_length=1, description="Post URL")
     text: Optional[str] = None
     image_url: Optional[str] = None
@@ -29,3 +31,35 @@ class AnalyzeRequest(BaseModel):
     social_media: List[SocialMediaRequest] = Field(
         min_length=1, description="Social media accounts"
     )
+
+
+class AnalyzePostRequest(BaseModel):
+    """Request schema for /analyze-post endpoint"""
+
+    text: str = Field(..., min_length=1, description="Text content to analyze")
+    image_url: Optional[HttpUrl] = Field(
+        None, description="URL of the image to analyze"
+    )
+    video_url: Optional[HttpUrl] = Field(
+        None, description="URL of the video to analyze"
+    )
+    platform: str = Field(..., min_length=1, description="Platform name")
+    post_id: str = Field(..., min_length=1, description="Post ID from the platform")
+
+
+class AnalyzeTextRequest(BaseModel):
+    """Request schema for /analyze-text endpoint"""
+
+    text: str = Field(..., min_length=1, description="Text content to analyze")
+
+
+class OCRRequest(BaseModel):
+    """Request schema for /ocr endpoint"""
+
+    image_url: HttpUrl = Field(..., description="URL of the image to perform OCR on")
+
+
+class TranscribeRequest(BaseModel):
+    """Request schema for /transcribe endpoint"""
+
+    video_url: HttpUrl = Field(..., description="URL of the video to transcribe")

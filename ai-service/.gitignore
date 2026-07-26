@@ -2,6 +2,10 @@
 .env
 .env.*
 !.env.example
+.mp3
+.wav
+*.mp3
+*.wav
 
 # Virtual environments
 venv/

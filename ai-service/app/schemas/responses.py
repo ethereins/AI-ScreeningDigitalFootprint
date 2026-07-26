@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 # Import RiskLevel from enums
 from app.schemas.enums import RiskLevel
@@ -59,3 +59,53 @@ class AnalyzeResponse(BaseModel):
     aggregated_scores: ScoreDetail
     summary: SummaryStats
     social_media: List[SocialMediaResponse]
+
+
+# analyze-post
+class Scores(BaseModel):
+    toxicity: Optional[float] = None
+    threat: Optional[float] = None
+    insult: Optional[float] = None
+    obscene: Optional[float] = None
+    identity_attack: Optional[float] = None
+    sexual_explicit: Optional[float] = None
+    hate_speech: Optional[float] = None
+    offensive: Optional[float] = None
+    abusive: Optional[float] = None
+
+
+class Context(BaseModel):
+    category: Optional[str] = None
+    explanation: Optional[str] = None
+    extra: Dict[str, Any] = {}  # for any additional context fields
+
+
+class AnalyzePostResponse(BaseModel):
+    risk_score: float  # 0-100
+    risk_level: RiskLevel
+    scores: Scores
+    context: Context
+
+
+from pydantic import BaseModel, Field
+
+
+
+
+# Analyze texts
+class AnalyzeTextResponse(BaseModel):
+    risk_score: float
+    risk_level: RiskLevel
+    scores: Scores  # can reuse the same Scores model
+    context: Context
+
+
+class OcrResponse(BaseModel):
+    text: str
+    confidence: Optional[float] = None  # optional, if OCR returns confidence
+
+
+class TranscribeResponse(BaseModel):
+    text: str
+    detected_language: Optional[str] = None
+    language_probability: Optional[float] = None

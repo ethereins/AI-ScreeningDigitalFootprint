@@ -4,14 +4,21 @@ from pathlib import Path
 
 # Add the project directory to the Python path
 sys.path.append(str(Path(__file__).parent.parent))
+import os
 
+from app.models.context_analysis import ContextConfig, ContextModel
+from app.models.hate_speech import HateSpeechConfig, HateSpeechModel
+
+# Import model classes
+from app.models.ocr import OCRConfig, OCRModel
 from app.routers import api_router
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from state import AppState
 
 load_dotenv()
-app = FastAPI(title="AI DigiFoot", version="0.1.0")
+app = FastAPI(title="Feather Verifier", version="0.1.0")
 app.include_router(api_router)
 app.add_middleware(
     CORSMiddleware,
@@ -27,6 +34,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Initialize models
+app.state.app_state = AppState()
 
 if __name__ == "__main__":
     import uvicorn
