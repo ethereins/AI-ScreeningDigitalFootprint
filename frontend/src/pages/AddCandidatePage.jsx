@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { candidateApi } from '../api/candidateApi';
-import { AlertCircle, CheckCircle, Instagram, Twitter, Music, Globe } from 'lucide-react';
+import { AlertCircle, CheckCircle, Instagram, Twitter, Music} from 'lucide-react';
 
 const AddCandidatePage = () => {
   const navigate = useNavigate();
@@ -15,7 +15,6 @@ const AddCandidatePage = () => {
       instagram: '',
       twitter: '',
       tiktok: '',
-      threads: '',
     },
   });
 
@@ -23,7 +22,6 @@ const AddCandidatePage = () => {
     { key: 'instagram', label: 'Instagram', icon: Instagram },
     { key: 'twitter', label: 'Twitter', icon: Twitter },
     { key: 'tiktok', label: 'TikTok', icon: Music },
-    { key: 'threads', label: 'Threads', icon: Globe },
   ];
 
   const handleInputChange = (e) => {
