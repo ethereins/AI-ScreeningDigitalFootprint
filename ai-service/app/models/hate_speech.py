@@ -51,6 +51,8 @@ class HateSpeechResult:
             "hate_level": self.hate_level.value,
             "abusive_level": self.abusive_level.value,
         }
+    def get_combined_score(self) -> float:
+        return (self.hate_speech_score + self.abusive_score) / 2
 
 
 class HateSpeechModel(BaseModel):

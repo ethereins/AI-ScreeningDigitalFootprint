@@ -11,6 +11,11 @@ class PostRequest(BaseModel):
     text: Optional[str] = None
     image_url: Optional[str] = None
     video_url: Optional[str] = None
+    platform: Optional[str] = None
+    posted_at: Optional[datetime] = None
+    likes: Optional[int] = None
+    comments: Optional[int] = None
+    post_id: Optional[str] = None
 
 
 class SocialMediaRequest(BaseModel):
@@ -20,17 +25,25 @@ class SocialMediaRequest(BaseModel):
     post_count: int = Field(default=0, ge=0, description="Total posts count")
     profile_url: Optional[str] = None
     avatar_url: Optional[str] = None
+    full_name: Optional[str] = None
     created_at: datetime = Field(description="ISO 8601 timestamp")
     updated_at: datetime = Field(description="ISO 8601 timestamp")
     posts: List[PostRequest] = Field(default_factory=list)
 
 
-class AnalyzeRequest(BaseModel):
+class PersonaRequest(BaseModel):
+    """New top-level request schema to match the JSON structure"""
+
     name: str = Field(min_length=1, max_length=255, description="Candidate name")
-    # ✅ Fixed: min_items → min_length
     social_media: List[SocialMediaRequest] = Field(
         min_length=1, description="Social media accounts"
     )
+
+
+class AnalyzeRequest(BaseModel):
+    """Updated to include the persona wrapper"""
+
+    persona: PersonaRequest = Field(description="Persona information")
 
 
 class AnalyzePostRequest(BaseModel):
