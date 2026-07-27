@@ -51,44 +51,55 @@ const DashboardPage = () => {
       
       setCandidates(data);
 
+      // Hitung statistik risk level
       const critical = data.filter((c) => {
-        const level = c.overall_risk_level || c.risk_level || '';
+        const level = c.overall_risk_level || c.risk_summary?.risk_level || c.risk_level || '';
         return level.toUpperCase() === 'CRITICAL';
       }).length;
       
       const high = data.filter((c) => {
-        const level = c.overall_risk_level || c.risk_level || '';
+        const level = c.overall_risk_level || c.risk_summary?.risk_level || c.risk_level || '';
         return level.toUpperCase() === 'HIGH';
       }).length;
       
       const medium = data.filter((c) => {
-        const level = c.overall_risk_level || c.risk_level || '';
+        const level = c.overall_risk_level || c.risk_summary?.risk_level || c.risk_level || '';
         return level.toUpperCase() === 'MEDIUM';
       }).length;
       
       const low = data.filter((c) => {
-        const level = c.overall_risk_level || c.risk_level || '';
+        const level = c.overall_risk_level || c.risk_summary?.risk_level || c.risk_level || '';
         return ['LOW', 'SAFE'].includes(level.toUpperCase());
       }).length;
 
+      // Hitung total posts
       let totalPosts = 0;
       let highRiskPosts = 0;
       data.forEach(c => {
+        // Dari summary
         if (c.summary) {
           totalPosts += c.summary.total_posts_analyzed || 0;
           highRiskPosts += c.summary.high_risk_posts_count || 0;
         }
+        // Dari social_media
         if (c.social_media && Array.isArray(c.social_media)) {
           c.social_media.forEach(sm => {
             if (sm.posts && Array.isArray(sm.posts)) {
               totalPosts += sm.posts.length;
               sm.posts.forEach(post => {
-                if (post.analysis && post.analysis.risk_level === 'HIGH') {
+                if (post.analysis && ['HIGH', 'CRITICAL'].includes(post.analysis.risk_level)) {
                   highRiskPosts++;
                 }
               });
             }
           });
+        }
+        // Dari analysisResults (jika ada)
+        if (c.analysis_results && Array.isArray(c.analysis_results)) {
+          totalPosts += c.analysis_results.length;
+          highRiskPosts += c.analysis_results.filter(r => 
+            ['HIGH', 'CRITICAL'].includes(r.risk_level)
+          ).length;
         }
       });
 
@@ -109,12 +120,20 @@ const DashboardPage = () => {
     }
   };
 
+  // ============ HELPERS ============
+  
   const getRiskLevel = (candidate) => {
-    return candidate.overall_risk_level || candidate.risk_level || 'LOW';
+    return candidate.overall_risk_level || 
+           candidate.risk_summary?.risk_level || 
+           candidate.risk_level || 
+           'LOW';
   };
 
   const getRiskScore = (candidate) => {
-    return candidate.overall_risk_score || candidate.risk_score || 0;
+    return candidate.overall_risk_score || 
+           candidate.risk_summary?.risk_score || 
+           candidate.risk_score || 
+           0;
   };
 
   const getAggregatedScores = (candidate) => {
@@ -139,15 +158,19 @@ const DashboardPage = () => {
   };
 
   const getCandidateName = (candidate) => {
-    return candidate.name || candidate.full_name || candidate.username || 'Unknown';
+    return candidate.full_name || candidate.name || candidate.username || 'Unknown';
   };
 
   const getCandidateUsername = (candidate) => {
     return candidate.username || candidate.handle || '';
   };
 
+  const getLastScanned = (candidate) => {
+    return candidate.last_crawled_at || candidate.last_scanned_at || candidate.updated_at;
+  };
+
   const StatCard = ({ title, value, icon: Icon, color, bgColor }) => (
-    <div className={`bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow`}>
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">{title}</p>
@@ -168,7 +191,7 @@ const DashboardPage = () => {
         <p className="text-gray-500 text-sm mt-0.5">Monitor digital footprint of candidates</p>
       </div>
 
-      {/* Stats - 4 columns with grouping */}
+      {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard title="Total" value={stats.total} icon={Users} color="text-blue-600" bgColor="bg-blue-50" />
         <StatCard title="Critical" value={stats.critical} icon={Zap} color="text-red-700" bgColor="bg-red-50" />
