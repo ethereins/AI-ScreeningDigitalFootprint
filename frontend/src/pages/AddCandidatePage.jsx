@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { candidateApi } from '../api/candidateApi';
-import { AlertCircle, CheckCircle, Instagram, Twitter, Music} from 'lucide-react';
+import { AlertCircle, CheckCircle, Instagram, Twitter, Music } from 'lucide-react';
 
 const AddCandidatePage = () => {
   const navigate = useNavigate();
@@ -10,7 +10,6 @@ const AddCandidatePage = () => {
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
-    username: '',
     social_links: {
       instagram: '',
       twitter: '',
@@ -59,7 +58,6 @@ const AddCandidatePage = () => {
     try {
       const response = await candidateApi.create({
         name: formData.name.trim(),
-        username: formData.username.trim(),
         social_links: socialLinks,
       });
 
@@ -84,7 +82,7 @@ const AddCandidatePage = () => {
       <div className="card">
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="alert-error">
               <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-red-800">Error</p>
@@ -94,7 +92,7 @@ const AddCandidatePage = () => {
           )}
 
           {success && (
-            <div className="flex items-start gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="alert-success">
               <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-green-800">Success!</p>
@@ -103,32 +101,19 @@ const AddCandidatePage = () => {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="input-label">Full Name *</label>
-              <input
-                type="text"
-                name="name"
-                required
-                className="input-field"
-                value={formData.name}
-                onChange={handleInputChange}
-                placeholder="John Doe"
-              />
-            </div>
-            <div>
-              <label className="input-label">Username (Internal) *</label>
-              <input
-                type="text"
-                name="username"
-                required
-                className="input-field"
-                value={formData.username}
-                onChange={handleInputChange}
-                placeholder="johndoe_123"
-              />
-              <p className="text-xs text-gray-500 mt-1">Internal identifier for this candidate</p>
-            </div>
+          {/* Hanya 1 kolom: Full Name */}
+          <div>
+            <label className="input-label">Full Name *</label>
+            <input
+              type="text"
+              name="name"
+              required
+              className="input-field"
+              value={formData.name}
+              onChange={handleInputChange}
+              placeholder="John Doe"
+            />
+            <p className="input-help">Enter the candidate's full name</p>
           </div>
 
           <div>
