@@ -48,7 +48,7 @@ def test_analyze_persona_response_structure(sample_analyze_request):
         sm["created_at"] = sm["created_at"].isoformat()
         sm["updated_at"] = sm["updated_at"].isoformat()
 
-    response = client.post("/api/analyze-persona", json=request_data)
+    response = client.post("/analyze-persona", json=request_data)
     assert response.status_code == 200
     response_data = response.json()
 

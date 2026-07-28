@@ -16,6 +16,7 @@ pydantic
 # API Request Handling
 python-multipart
 httpx
+requests
 
 # Authentication & Security
 passlib
@@ -27,6 +28,13 @@ email-validator
 onnxruntime
 numpy
 pillow
+transformers
+install
+paddlepaddle
+paddleocr
+ollama
+faster-whisper
+yt_dlp
 
 # PDF Generation
 reportlab
@@ -41,3 +49,6 @@ pytest-mock
 
 # Logging
 loguru
+
+# Conversions
+moviepy

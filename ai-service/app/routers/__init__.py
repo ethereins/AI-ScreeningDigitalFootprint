@@ -1,12 +1,12 @@
-from app.routers import analyze_persona
+from app.routers import analysis
 from fastapi import APIRouter
 
 # Create the main API router with global prefix
-api_router = APIRouter(prefix="/api")
+api_router = APIRouter()
 
 # Include your feature routers
 api_router.include_router(
-    analyze_persona.router, prefix="/analyze-persona"
+    analysis.router
 )  # /api/analyze-persona/...
 
 
